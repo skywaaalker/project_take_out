@@ -1,0 +1,35 @@
+server:
+  port: 80
+spring:
+  application:
+    name: project_take_out
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/take_out?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0  #16个数据库，默认0号
+      jedis:
+        pool:
+          max-active: 8 #最大连接数
+          max-idle: 4   #最大空闲连接
+          max-wait: 1ms  #连接池最大阻塞时间
+          min-idle: 0   #最小空闲连接
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+
+project:
+  imgPath: C:\\Users\\Skywalker\\Desktop\\Professional\\server_resources\\
+
+
