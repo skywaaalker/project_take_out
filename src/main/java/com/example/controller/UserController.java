@@ -11,12 +11,14 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.awt.datatransfer.StringSelection;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -25,6 +27,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @RequestMapping("/sendMsg")
     public R<String> sendMsg(@RequestBody User user, HttpSession httpSession) {
@@ -38,6 +43,8 @@ public class UserController {
             //SMSUtils.sendMessage("take-out", "", phone, code);
             // 存在session中
             httpSession.setAttribute(phone, code);
+            //存到redis
+            redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
             return R.success("发送验证码短信成功");
         }
         return R.error("发送验证码短信成失败");
@@ -50,8 +57,10 @@ public class UserController {
         String phone = map.get("phone").toString();
         String code = map.get("code").toString();
         //从session获取保存的验证码， 进行比对，如果成功就登陆成功
-        Object codeInSession = httpSession.getAttribute(phone);
-        if(codeInSession != null && codeInSession.equals(code)) {
+        //Object codeInSession = httpSession.getAttribute(phone);
+        //从redis中获取
+        Object codeInRedis = redisTemplate.opsForValue().get(phone);
+        if(codeInRedis != null && codeInRedis.equals(code)) {
             LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(User::getPhone, phone);
             User user = userService.getOne(queryWrapper);
@@ -62,6 +71,7 @@ public class UserController {
                 userService.save(user);
             }
             httpSession.setAttribute("user", user.getId());
+            redisTemplate.delete(phone);
             return R.success(user);
         }
         return R.error("登陆失败");
