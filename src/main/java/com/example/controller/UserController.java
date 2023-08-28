@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.awt.datatransfer.StringSelection;
 import java.util.Map;
@@ -30,6 +32,9 @@ public class UserController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @RequestMapping("/sendMsg")
     public R<String> sendMsg(@RequestBody User user, HttpSession httpSession) {
@@ -76,4 +81,6 @@ public class UserController {
         }
         return R.error("登陆失败");
     }
+
+
 }

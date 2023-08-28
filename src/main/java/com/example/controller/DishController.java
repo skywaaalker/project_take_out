@@ -96,7 +96,7 @@ public class DishController {
     public  R<String> delete(@RequestParam String[] ids) {
         log.info("需要删除的菜品id{}", ids);
         dishService.deleteWithFlavorBatch(ids);
-        redisTemplate.delete(redisTemplate.keys("dish_*"))
+        redisTemplate.delete(redisTemplate.keys("dish_*"));
         if(ids.length > 1) {
             return R.success("批量删除菜品成功");
         }

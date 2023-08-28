@@ -40,7 +40,9 @@ public class LoginCheckFilter implements Filter {
                 "/front/**",
                 "/common/*",
                 "/user/sendMsg",
-                "/user/login"
+                "/user/login",
+                "/userCache/*",
+                "/userCache"
         };
 
         boolean check =  check(urls, requestURL);

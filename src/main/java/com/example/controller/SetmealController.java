@@ -14,6 +14,8 @@ import com.example.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +36,7 @@ public class SetmealController {
     private CategoryService categoryService;
 
     @PostMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("添加套餐：{}", setmealDto.toString());
         setmealService.saveWithDish(setmealDto);
@@ -66,6 +69,7 @@ public class SetmealController {
     }
 
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> delete(@RequestParam List<Long> ids) {
         setmealService.removeWithDish(ids);
         return R.success("删除套餐成功");
@@ -82,12 +86,13 @@ public class SetmealController {
     }
 
     @GetMapping("/list")
-    public R<List<Setmeal>> list(@RequestParam Map map) {
-        log.info("获取套餐{}", map);
-        Long categoryId = Long.valueOf(map.get("categoryId").toString());
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+        Long categoryId = setmeal.getCategoryId();
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Setmeal::getCategoryId, categoryId);
         queryWrapper.eq(Setmeal::getStatus, 1);
+        queryWrapper.orderByDesc((Setmeal::getUpdateTime));
         return R.success(setmealService.list(queryWrapper));
     }
 

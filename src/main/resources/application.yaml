@@ -20,6 +20,9 @@ spring:
           max-idle: 4   #最大空闲连接
           max-wait: 1ms  #连接池最大阻塞时间
           min-idle: 0   #最小空闲连接
+  cache:
+    redis:
+      time-to-live: 1800000
 
 mybatis-plus:
   configuration:
@@ -31,5 +34,4 @@ mybatis-plus:
 
 project:
   imgPath: C:\\Users\\Skywalker\\Desktop\\Professional\\server_resources\\
-
 
